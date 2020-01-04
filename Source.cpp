@@ -84,6 +84,8 @@ void write_jpg() {
 	//list[1] = new sphere(vec3(0,-100.5,-1) ,20);
 	hittable* world = new hittablelist(list,1);
 
+	camera cam;
+
 	uint8_t* pixels = new uint8_t[nx*ny*3];
 
 	//std::cout << "P3\n" <<nx<<" "<<ny<<"\n255\n";
@@ -91,20 +93,26 @@ void write_jpg() {
 	for (int col = 0; col < ny; col++) {
 		for (int row = 0; row < nx; row++) {
 
-				float u = float(row)/float(nx);
-				float v = float(col)/float(ny);
-					
-				ray r(origin , lower_left_corner + u * horizontal + v * vertical);
+			vec3 colors(0, 0, 0);
+			
+			for (int s=0 ; s < ns; s++) {
 				
-				vec3 p = r.point_at_parameter(2.0);
-				vec3 col = color2(r,world);
-				float ir = int(255 * col[0]);
-				float ig = int(255 * col[1]);
-				float ib = int(255 * col[2]);
+				float u = float(row + random_double()) / float(nx);
+				float v = float(col + random_double()) / float(ny);
+				
+				ray r = cam.get_ray(u,v);
+				colors += color2(r, world);
+			}
+
+			colors /= float(ns);
+				float ir = int(255 * colors[0]);
+				float ig = int(255 * colors[1]);
+				float ib = int(255 * colors[2]);
 					
 				pixels[index++] = ir;
 				pixels[index++] = ig;
 				pixels[index++] = ib;
+
 
 		}
 	}
