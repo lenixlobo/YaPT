@@ -7,12 +7,14 @@
 #define STBI_MSC_SECURE_CRT
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
+
 #include "vec3.h"
 #include "ray.h"
 #include "hittable.h"
 #include "hittablelist.h"
 #include "sphere.h"
-
+#include "camera.h"
+#include "randomize.h"
 
 /*
 float hit_sphere(const vec3& center,float radius, const ray& r) {
@@ -39,13 +41,17 @@ vec3 color2(const ray& r,hittable* world) {
 	hit_record rec;
 
 	if (world->hit(r, 0.0, FLT_MAX , rec)) {
-		return 0.5*vec3(rec.normal.x()+1, rec.normal.y()+1, rec.normal.z()+1);
+		//hit object render
+		vec3 target = rec.p + rec.normal + random_in_unit_sphere();
+		return 0.5 * color2(ray(rec.p, target - rec.p), world);
+		//return 0.5*vec3(rec.normal.x() + 1 , rec.normal.y() + 1, rec.normal.z() + 1);
 	}
 	else {
+		//handles bg
 		vec3 unit_direction = unit_vector(r.direction());//unit_vector : respresents the direction of a ray
 		float t = 0.5 * (unit_direction.y() + 1.0); // t : 
 		// lerp : linear interpolation between white and blue;
-		return (1.0 - t) * vec3(1.0, 1.0, 1.0) + t * vec3(0.5, 1.0, 1.0);
+		return (1.0 - t) * vec3(1.0, 1.0, 1.0) + t * vec3(0.5, 0.4, 1.0);
 	}
 
 }
@@ -68,21 +74,24 @@ vec3 color(const ray& r) {
 */
 void write_jpg() {
 	//std::cout << "Hello World" << std::endl;
-	int nx = 1000;
-	int ny = 500;
-	
+	int nx = 500;
+	int ny = 250;
+	int ns = 100;
+
 	//define coordinate system
-	vec3 lower_left_corner(-2.0 ,-1.0 ,-1.0);
+	/*vec3 lower_left_corner(-2.0 ,-1.0 ,-1.0);
 	vec3 horizontal(4.0 ,0.0 ,0.0);
 	vec3 vertical(0.0 ,2.0 ,0.0);
 	vec3 origin(0.0 ,0.0 ,0.0);
+	*/
 
-	std::cout << " Creating objects";
+	std::cout << " Creating objects"<<std::endl;
+	
 	//create list of objects
-	hittable *list[1];
-	list[0] = new sphere(vec3(0,0,-1) ,0.5);
-	//list[1] = new sphere(vec3(0,-100.5,-1) ,20);
-	hittable* world = new hittablelist(list,1);
+	hittable *list[2];
+	list[0] = new sphere (vec3(0, 0, -1) ,0.5);
+	list[1] = new sphere (vec3(0, -100.5, -1) ,100);
+	hittable* world = new hittablelist(list	,2);
 
 	camera cam;
 
@@ -90,11 +99,11 @@ void write_jpg() {
 
 	//std::cout << "P3\n" <<nx<<" "<<ny<<"\n255\n";
 	int index = 0;
-	for (int col = 0; col < ny; col++) {
+	for (int col = ny-1; col >=0; col--) {
 		for (int row = 0; row < nx; row++) {
-
-			vec3 colors(0, 0, 0);
 			
+			vec3 colors(0, 0, 0);
+			std::cout << "Row: " << row << "\t Col: " << col << std::endl;
 			for (int s=0 ; s < ns; s++) {
 				
 				float u = float(row + random_double()) / float(nx);
@@ -112,7 +121,6 @@ void write_jpg() {
 				pixels[index++] = ir;
 				pixels[index++] = ig;
 				pixels[index++] = ib;
-
 
 		}
 	}
