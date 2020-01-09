@@ -15,6 +15,7 @@
 #include "sphere.h"
 #include "camera.h"
 #include "randomize.h"
+#include "material.h"
 
 /*
 float hit_sphere(const vec3& center,float radius, const ray& r) {
@@ -36,6 +37,28 @@ float hit_sphere(const vec3& center,float radius, const ray& r) {
 
 }
 */
+
+vec3 color3(const ray& r,hittable* world, int depth) {
+	hit_record rec;
+	if (world->hit(r, 0.0, FLT_MAX, rec)) {
+		ray scattered;
+		vec3 attenuation;
+		if (depth < 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
+			return attenuation*color3(scattered, world, depth+1);
+		}
+		else {
+			return vec3(0, 0, 0);
+		}
+	}
+	else {
+		vec3 unit_direction = unit_vector(r.direction());//unit_vector : respresents the direction of a ray
+		float t = 0.5 * (unit_direction.y() + 1.0); // t : 
+		// lerp : linear interpolation between white and blue;
+		return (1.0 - t) * vec3(1.0, 1.0, 1.0) + t * vec3(0.5, 0.4, 1.0);
+	}
+}
+
+/*
 vec3 color2(const ray& r,hittable* world) {
 	
 	hit_record rec;
@@ -55,7 +78,7 @@ vec3 color2(const ray& r,hittable* world) {
 	}
 
 }
-
+*/
 /*
 vec3 color(const ray& r) {
 	
@@ -88,10 +111,14 @@ void write_jpg() {
 	std::cout << " Creating objects"<<std::endl;
 	
 	//create list of objects
-	hittable *list[2];
-	list[0] = new sphere (vec3(0, 0, -1) ,0.5);
-	list[1] = new sphere (vec3(0, -100.5, -1) ,100);
-	hittable* world = new hittablelist(list	,2);
+	hittable *list[4];
+	//list[0] = new sphere (vec3(0, 0, -1) ,0.5);
+	//list[1] = new sphere (vec3(0, -100.5, -1) ,100);
+	list[0] = new sphere( vec3(0, 0, -1) , 0.5 ,new lambertian(vec3( 0.8, 0.3, 0.3) ) );
+	list[1] = new sphere( vec3(0, -100.5, -1) , 100 ,new lambertian(vec3( 0.8, 0.8, 0.0) ) );
+	list[2] = new sphere( vec3(1, 0, -1), 0.5, new metal(vec3(0.8, 0.6, 0.2) ) );
+	list[3] = new sphere( vec3(-1, 0, -1), 0.5, new metal(vec3(0.8, 0.8, 0.8) ) );
+	hittable* world = new hittablelist(list	,4);
 
 	camera cam;
 
@@ -110,10 +137,11 @@ void write_jpg() {
 				float v = float(col + random_double()) / float(ny);
 				
 				ray r = cam.get_ray(u,v);
-				colors += color2(r, world);
+				colors += color3(r, world,0);
 			}
 
 			colors /= float(ns);
+
 				float ir = int(255 * colors[0]);
 				float ig = int(255 * colors[1]);
 				float ib = int(255 * colors[2]);
