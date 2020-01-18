@@ -12,7 +12,7 @@ public:
 	}
 
 	ray get_ray(float u, float v) {
-		return ray(origin,lower_left_corner+horizontal*u+vertical*v - origin);
+		return ray(origin , lower_left_corner + horizontal * u + vertical * v - origin);
 	}
 
 	vec3 origin;
