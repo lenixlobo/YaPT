@@ -115,7 +115,7 @@ void write_jpg() {
 	//list[0] = new sphere (vec3(0, 0, -1) ,0.5);
 	//list[1] = new sphere (vec3(0, -100.5, -1) ,100);	
 	list[0] = new sphere( vec3(0, 0, -1) , 0.5 ,new lambertian(vec3( 0.1, 0.2, 0.5) ) );
-	list[1] = new sphere( vec3(0, -100.5, -1) , 100 ,new lambertian(vec3( 0.8, 0.8, 0.0) ) );
+	list[1] = new sphere( vec3(0, -100.5, -1) , 100 ,new lambertian(vec3( 0.8, 0.8, 0.8) ) );
 	list[2] = new sphere( vec3(1, 0, -1), 0.5, new metal(vec3(0.8, 0.6, 0.2),0.3));
 	list[3] = new sphere( vec3(-1, 0, -1), 0.5, new dielectric(1.5));
 	list[4] = new sphere(vec3(-1, 0, -1), -0.45, new dielectric(1.5));
@@ -123,7 +123,7 @@ void write_jpg() {
 
 	hittable* world = new hittablelist(list	,5);
 
-	camera cam(vec3(-2,2,1),vec3(0,0,-1),vec3(0,1,0),90,float(nx)/float(ny));
+	camera cam(vec3(-2,2,1),vec3(0,0,-1),vec3(0,1,0),90, float(nx)/float(ny));
 
 	uint8_t* pixels = new uint8_t[nx*ny*3];
 
