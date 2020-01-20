@@ -123,7 +123,7 @@ void write_jpg() {
 
 	hittable* world = new hittablelist(list	,5);
 
-	camera cam;
+	camera cam(vec3(-2,2,1),vec3(0,0,-1),vec3(0,1,0),90,float(nx)/float(ny));
 
 	uint8_t* pixels = new uint8_t[nx*ny*3];
 
